@@ -16,24 +16,17 @@ def bot_login():
 def run_bot(r, comments_replied_to):
 	#print ("Obtaining comments")
 
-	for comment in r.subreddit('all').comments(limit=800):
+	for comment in r.subreddit('popular').comments(limit=800):
 		if ("link?" in comment.body or "Link?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
-			print ("Link String found " + comment.id)
+			print ("Link String found: " + comment.id)
 			print(comment.body)
-			comment.reply("[Here you go!](https://www.ssbwiki.com/images/thumb/2/23/HWL_Toon_Link_Artwork.png/1200px-HWL_Toon_Link_Artwork.png)")
-			print ("Replied to comment ")
-			time.sleep(6)
+			if(not comment.submission.over_18):
+				comment.reply("[Here you go!](https://www.ssbwiki.com/images/thumb/2/23/HWL_Toon_Link_Artwork.png/1200px-HWL_Toon_Link_Artwork.png)")
+				print ("Replied to comment")
+			else:
+				print("Submission ID: " + comment.submission.id)
+				print ("NSFW post. Did not reply.")
 
-			comments_replied_to.append(comment.id)
-
-			with open ("comments_replied_to.txt", "a") as f:
-				f.write(comment.id + "\n")
-
-		if ("mirror?" in comment.body or "Mirror?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
-			print ("Mirror String found " + comment.id)
-			print(comment.body)
-			comment.reply("[Here you go!](https://s-media-cache-ak0.pinimg.com/736x/d2/a4/1c/d2a41c03f5dcab554f143f65fc1551d7.jpg)")
-			print ("Replied to comment ")
 			time.sleep(6)
 
 			comments_replied_to.append(comment.id)
@@ -44,7 +37,7 @@ def run_bot(r, comments_replied_to):
 	#print (comments_replied_to)
 
 	print ("Sleep for 5 seconds")
-	#Sleep for 5 seconds
+	#Sleep for 10 seconds
 	time.sleep(5)
 
 def secondary():
