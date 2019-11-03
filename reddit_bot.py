@@ -73,11 +73,21 @@ def get_saved_comments():
 
 	return comments_replied_to
 
-r = bot_login()
+def checkPopularity():
+	c_list = r_redditor.comments.new(limit=None)
+	for comment in c_list:
+		if comment.score < 0:
+			print(comment.body + ', ' + comment.id)
+
+
+r = bot_login()									# r is an instance of Reddit
+r_user = r.user
+r_redditor = r.redditor('ResVenBot')
 comments_replied_to = get_saved_comments()
-print (comments_replied_to)
+#print (comments_replied_to)
 
 for num in range(1,2):
+	checkPopularity()
 	secondary()
 	#run_bot(r, comments_replied_to)
 	#runAllPosts(r)
