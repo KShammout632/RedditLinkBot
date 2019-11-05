@@ -4,6 +4,7 @@ import csv
 
 def addToCSV():
     loc = reddit_bot.getCDetails()
+    # Assumes there is a file called 'comment_details.csv' in the directory
     with open('comment_details.csv', 'a', encoding='utf-8') as csvfile:
         filewriter = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         filewriter.writerow(['Subreddit', 'Karma'])
