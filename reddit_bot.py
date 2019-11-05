@@ -61,6 +61,22 @@ def checkPopularity():
 				with open ("unpopular_comments.txt", "a") as f:
 					f.write(comment.id + "\n")
 
+def getCDetails():
+	c_list = r_redditor.comments.new(limit=None)
+	retList = []
+	for comment in c_list:
+		#parent = comment.parent()
+		#submission = comment.submission
+		sb = comment.subreddit			# subreddit replying to
+		#desc = parent.body				# comment body replying to
+		#scp = parent.score				# parent comment's score
+		scc = comment.score				# bot comment's score
+		#title = submission.title		# title of submission
+		att = [sb,scc]
+		retList.append(att)
+		print(retList)
+
+	return retList
 
 
 r = bot_login()									# r is an instance of Reddit
@@ -69,7 +85,6 @@ r_redditor = r.redditor('ResVenBot')
 comments_replied_to = file_handle.get_saved_comments()
 popular_comments = file_handle.get_popular_comments()
 unpopular_comments = file_handle.get_unpopular_comments()
-#print (comments_replied_to)
 
 for num in range(1,2):
 	checkPopularity()
