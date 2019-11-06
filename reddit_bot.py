@@ -2,6 +2,7 @@ import praw
 import config
 import time
 import os
+import file_handle
 
 def bot_login():
 	r = praw.Reddit(username = config.username,
@@ -14,8 +15,6 @@ def bot_login():
 	return r
 
 def run_bot(r, comments_replied_to):
-	#print ("Obtaining comments")
-
 	for comment in r.subreddit('popular').comments(limit=800):
 		if ("link?" in comment.body or "Link?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
 			print ("Link String found: " + comment.id)
@@ -37,8 +36,7 @@ def run_bot(r, comments_replied_to):
 	#print (comments_replied_to)
 
 	print ("Sleep for 5 seconds")
-	#Sleep for 10 seconds
-	time.sleep(5)
+	#time.sleep(5)
 
 def secondary():
 	try:
@@ -50,34 +48,44 @@ def secondary():
 		print('Resuming in 30sec...')
 		time.sleep(30)
 
-def create_file():
-	if os.path.isfile("comments_replied_to.txt"):
-		print (os.path.dirname("comments_replied_to.txt"))
-		return "comments_replied_to.txt"
-	else:
-		#Creates the file if it doesnt exist
-		file = open("comments_replied_to.txt", 'w')
-		print("comments_replied_to.txt", "was created")
-		file.close()
-		create_file()
+def checkPopularity():
+	c_list = r_redditor.comments.new(limit=None)
+	for comment in c_list:										# iterates through ResVenBot's comments
+		if comment not in popular_comments and comment not in unpopular_comments and (time.time() - comment.created_utc > 86400):
+			if comment.score > 0:
+				popular_comments.append(comment.id)				# adds the comment id to the array
+				with open ("popular_comments.txt", "a") as f:	# adds the comment id to the file
+					f.write(comment.id + "\n")
+			else:
+				unpopular_comments.append(comment.id)
+				with open ("unpopular_comments.txt", "a") as f:
+					f.write(comment.id + "\n")
 
-def get_saved_comments():
-	if not os.path.isfile("comments_replied_to.txt"):
-		create_file()
-		comments_replied_to = []
-	else:
-		with open("comments_replied_to.txt", "r") as f:
-			comments_replied_to = f.read()
-			comments_replied_to = comments_replied_to.split("\n")
-			#comments_replied_to = filter(None, comments_replied_to)
+def getCDetails():
+	c_list = r_redditor.comments.new(limit=None)
+	retList = []
+	for comment in c_list:
+		#parent = comment.parent()
+		#submission = comment.submission
+		sb = comment.subreddit			# subreddit replying to
+		#desc = parent.body				# comment body replying to
+		#scp = parent.score				# parent comment's score
+		scc = comment.score				# bot comment's score
+		#title = submission.title		# title of submission
+		att = [sb,scc]
+		retList.append(att)
+		print(retList)
 
-	return comments_replied_to
+	return retList
 
-r = bot_login()
-comments_replied_to = get_saved_comments()
-print (comments_replied_to)
+
+r = bot_login()									# r is an instance of Reddit
+r_user = r.user
+r_redditor = r.redditor('ResVenBot')
+comments_replied_to = file_handle.get_saved_comments()
+popular_comments = file_handle.get_popular_comments()
+unpopular_comments = file_handle.get_unpopular_comments()
 
 for num in range(1,2):
+	checkPopularity()
 	secondary()
-	#run_bot(r, comments_replied_to)
-	#runAllPosts(r)
