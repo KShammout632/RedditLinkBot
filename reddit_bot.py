@@ -3,6 +3,7 @@ import config
 import time
 import os
 import file_handle
+import sys
 
 def bot_login():
 	r = praw.Reddit(username = config.username,
@@ -15,7 +16,7 @@ def bot_login():
 	return r
 
 def run_bot(r, comments_replied_to):
-	for comment in r.subreddit('popular').comments(limit=800):
+	for comment in r.subreddit('popular').comments(limit=400):
 		if ("link?" in comment.body or "Link?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
 			print ("Link String found: " + comment.id)
 			print(comment.body)
@@ -26,23 +27,19 @@ def run_bot(r, comments_replied_to):
 				print("Submission ID: " + comment.submission.id)
 				print ("NSFW post. Did not reply.")
 
+			print ("Sleep for 6 seconds")
 			time.sleep(6)
 
 			comments_replied_to.append(comment.id)
 
 			with open ("comments_replied_to.txt", "a") as f:
 				f.write(comment.id + "\n")
-
-	#print (comments_replied_to)
-
-	print ("Sleep for 5 seconds")
-	#time.sleep(5)
+	print('.')
 
 def secondary():
 	try:
 		while True:
 			run_bot(r, comments_replied_to)
-
 	except:
 		traceback.print_exc()
 		print('Resuming in 30sec...')
@@ -60,6 +57,24 @@ def checkPopularity():
 				unpopular_comments.append(comment.id)
 				with open ("unpopular_comments.txt", "a") as f:
 					f.write(comment.id + "\n")
+	testcmd()
+
+def deleteUnpopular():
+	delIn = input("Are you sure? (y)/(n) \n")
+	if delIn == 'n':
+		testcmd()
+	elif delIn == 'y':
+		c_list = r_redditor.comments.new(limit=None)
+		for comment in c_list:
+			if comment.id in unpopular_comments:
+				comment.delete()
+				print("comment with id: " + comment.id + " has been deleted")
+		open('unpopular_comments.txt', 'w').close()
+		unpopular_comments = []
+	else:
+		print("Please type a valid option")
+		deleteUnpopular()
+	testcmd()
 
 def getCDetails():
 	c_list = r_redditor.comments.new(limit=None)
@@ -78,6 +93,20 @@ def getCDetails():
 
 	return retList
 
+def testcmd():
+	inp = input("Would you like to: \n (1). Start replying \n (2). Check popularity \n (3). Delete unpopular comments \n (exit) Exit \n")
+	if inp == '1':
+		secondary()
+	elif inp == '2':
+		checkPopularity()
+	elif inp == '3':
+		deleteUnpopular()
+	elif inp == 'exit':
+		exit()
+	else:
+		print("Sorry, please type a number corresponding to one of the options")
+		testcmd()
+
 
 r = bot_login()									# r is an instance of Reddit
 r_user = r.user
@@ -86,6 +115,4 @@ comments_replied_to = file_handle.get_saved_comments()
 popular_comments = file_handle.get_popular_comments()
 unpopular_comments = file_handle.get_unpopular_comments()
 
-for num in range(1,2):
-	checkPopularity()
-	secondary()
+testcmd()
