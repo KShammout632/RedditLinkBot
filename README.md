@@ -5,3 +5,5 @@ This reddit bot will search through comments on reddit that ask for a "link?" an
 
 This will require you to change the file "config.py" with your own information.
 
+Follow prompts on console screen to select options on what you want the bot to do.
+
