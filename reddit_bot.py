@@ -15,8 +15,8 @@ def bot_login():
 
 	return r
 
-def run_bot(r, comments_replied_to):
-	for comment in r.subreddit('popular').comments(limit=400):
+def run_bot(r, comments_replied_to, sinput):
+	for comment in r.subreddit(sinput).comments(limit=400):
 		if ("link?" in comment.body or "Link?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
 			print ("Link String found: " + comment.id)
 			print(comment.body)
@@ -37,9 +37,10 @@ def run_bot(r, comments_replied_to):
 	print('.')
 
 def secondary():
+	sinput = input("What subreddit would you like to go through: \n")
 	try:
 		while True:
-			run_bot(r, comments_replied_to)
+			run_bot(r, comments_replied_to, sinput)
 	except:
 		traceback.print_exc()
 		print('Resuming in 30sec...')
@@ -57,12 +58,12 @@ def checkPopularity():
 				unpopular_comments.append(comment.id)
 				with open ("unpopular_comments.txt", "a") as f:
 					f.write(comment.id + "\n")
-	testcmd()
+	cmdopt()
 
 def deleteUnpopular():
 	delIn = input("Are you sure? (y)/(n) \n")
 	if delIn == 'n':
-		testcmd()
+		cmdopt()
 	elif delIn == 'y':
 		c_list = r_redditor.comments.new(limit=None)
 		for comment in c_list:
@@ -70,11 +71,11 @@ def deleteUnpopular():
 				comment.delete()
 				print("comment with id: " + comment.id + " has been deleted")
 		open('unpopular_comments.txt', 'w').close()
-		unpopular_comments = []
+		#unpopular_comments = []
 	else:
 		print("Please type a valid option")
 		deleteUnpopular()
-	testcmd()
+	cmdopt()
 
 def getCDetails():
 	c_list = r_redditor.comments.new(limit=None)
@@ -93,8 +94,8 @@ def getCDetails():
 
 	return retList
 
-def testcmd():
-	inp = input("Would you like to: \n (1). Start replying \n (2). Check popularity \n (3). Delete unpopular comments \n (exit) Exit \n")
+def cmdopt():
+	inp = input("Would you like to: \n (1) Start replying \n (2) Check popularity \n (3) Delete unpopular comments \n (exit) Exit \n")
 	if inp == '1':
 		secondary()
 	elif inp == '2':
@@ -105,7 +106,7 @@ def testcmd():
 		exit()
 	else:
 		print("Sorry, please type a number corresponding to one of the options")
-		testcmd()
+		cmdopt()
 
 
 r = bot_login()									# r is an instance of Reddit
@@ -115,4 +116,4 @@ comments_replied_to = file_handle.get_saved_comments()
 popular_comments = file_handle.get_popular_comments()
 unpopular_comments = file_handle.get_unpopular_comments()
 
-testcmd()
+cmdopt()
