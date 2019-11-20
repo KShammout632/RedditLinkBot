@@ -19,7 +19,10 @@ def run_bot(r, comments_replied_to, sinput):
 	for comment in r.subreddit(sinput).comments(limit=400):
 		if ("link?" in comment.body or "Link?" in comment.body) and comment.id not in comments_replied_to and comment.author != r.user.me():
 			print ("Link String found: " + comment.id)
-			print(comment.body)
+			if(not comment.is_root):
+				parent = comment.parent()
+				print("Parent comment: " + parent.body)
+			print("Comment body: " + comment.body)
 			if(not comment.submission.over_18):
 				comment.reply("[Here you go!](https://www.ssbwiki.com/images/thumb/2/23/HWL_Toon_Link_Artwork.png/1200px-HWL_Toon_Link_Artwork.png)")
 				print ("Replied to comment")
